@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - E-Stationery Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+        .login-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            margin: auto;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #2d89ef;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #1e6ed8;
+        }
+        .logout-btn {
+            margin-top: 10px;
+            background: #e74c3c;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Section -->
+    <div class="login-container" id="login-form">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Enter Username" required>
+        <input type="password" id="password" placeholder="Enter Password" required>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <!-- Logged-in Section -->
+    <div class="login-container" id="already-logged-in" style="display: none;">
+        <h2>You are already logged in!</h2>
+        <button onclick="goToStore()">Go to Store</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            fetch("http://localhost:5000/users/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    sessionStorage.setItem("loggedIn", "true");
+                    
+                    // Show the logout section without reload
+                    document.getElementById("login-form").style.display = "none";
+                    document.getElementById("already-logged-in").style.display = "block";
+                } else {
+                    alert("Invalid username or password!");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function logout() {
+            sessionStorage.removeItem("loggedIn");
+            alert("You have been logged out.");
+            document.getElementById("already-logged-in").style.display = "none";
+            document.getElementById("login-form").style.display = "block";
+        }
+
+        function goToStore() {
+            window.location.href = "estore.html";
+        }
+
+        window.onload = function () {
+            const isLoggedIn = sessionStorage.getItem("loggedIn");
+            if (isLoggedIn === "true") {
+                document.getElementById("login-form").style.display = "none";
+                document.getElementById("already-logged-in").style.display = "block";
+            }
+        };
+    </script>    
+</body>
+</html>

@@ -1,0 +1,43 @@
+[
+    {
+        "name": "Diary",
+        "price": 35,
+        "description": "High-quality diary for every occasion.",
+        "category": "Category A"
+    },
+    {
+        "name": "Pen set",
+        "price": 50,
+        "description": "Stylish pens for professionals and students.",
+        "category":"Category B"
+    },
+    {
+        "name": "Chalk",
+        "price": 30,
+        "description": "Smooth ,vibrant and dustfree chalks",
+        "category":"Category c"
+    },
+    {
+        "name": "Duster",
+        "price": 40,
+        "description": "Effortless cleaning every time",
+        "category":"Category D"
+    },
+    {
+        "name": "Blank Pages",
+        "price": 50,
+        "description": "Premium quality pages for every occasion",
+        "category":"Category B"
+    },
+    {
+        "name": "Notebooks",
+        "price": 30,
+        "category":"Category B"
+    },
+    {
+        "name": "Markers",
+        "price": 30,
+        "description": "Bold marks Smooth lines",
+        "category":"Category C"
+    }
+]

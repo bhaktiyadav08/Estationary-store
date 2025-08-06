@@ -1,0 +1,373 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>E-Stationery Store</title> 
+<style> 
+body { 
+    font-family: 'Roboto', sans-serif; 
+    margin: 0; 
+    padding: 0; 
+    line-height: 1.6; 
+    color: #333; 
+} 
+.header { 
+    background: #2d89ef; 
+    color: #fff; 
+    padding: 20px;
+    text-align: center;
+} 
+
+/* Title and Logo Container */
+.title-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Space between logo and title */
+    margin-bottom: 10px;
+}
+
+.title-logo { 
+    width: 60px;  /* Adjust logo size */
+    height: auto;  /* Maintain aspect ratio */
+}
+
+.main-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+.navbar { 
+    display: flex; 
+    justify-content: center; 
+    gap: 15px; 
+    margin-top: 10px; 
+} 
+.navbar a { 
+    color:#fff; 
+    text-decoration: none; 
+    font-weight: bold; 
+} 
+.search-bar-container {
+    text-align: center;
+    margin: 20px auto;
+}
+#search-input {
+    padding: 10px;
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+.search-bar-container button {
+    padding: 10px 15px;
+    font-size: 1rem;
+    background: #2d89ef;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.search-bar-container button:hover {
+    background: #0056b3;
+}
+.hero {
+    background: url('images/bg2.jpg') no-repeat center center;
+    background-size: cover; /* Ensures the image covers the section */
+    background-position: center;
+    background-attachment: scroll; /* Ensures normal scrolling */
+    color: black;
+    text-align: center;
+    padding: 6rem 1rem;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero h2 { 
+    font-size: 2.5rem; 
+} 
+.cta-button { 
+    background: #ea1616; 
+    color: #fff; 
+    padding: 10px 20px; 
+    text-decoration: none; 
+    border-radius: 5px; 
+} 
+/* Product Grid Layout */
+.product-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+    gap: 20px; /* Space between products */
+    padding: 20px;
+    justify-content: center;
+}
+
+/* Product Card */
+.product-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    padding: 15px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.product-card:hover {
+    transform: scale(1.05); /* Hover effect */
+}
+
+/* Product Image */
+.product-card img {
+    width: 100%; 
+    height: 180px; /* Fixed height for consistency */
+    object-fit: contain; /* Prevents image distortion */
+    border-radius: 5px;
+}
+
+/* Product Title */
+.product-card h3 {
+    font-size: 1.2rem;
+    margin: 10px 0;
+}
+
+/* Product Price */
+.product-card p {
+    font-size: 1rem;
+    color: #555;
+}
+@media (min-width: 768px) {
+    .product-container {
+        grid-template-columns: repeat(3, 1fr); /* 3 columns on medium screens */
+    }
+}
+
+@media (min-width: 1024px) {
+    .product-container {
+        grid-template-columns: repeat(4, 1fr); /* 4 columns on large screens */
+    }
+}
+/* Buttons */
+.product-card button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+    margin: 5px;
+}
+
+.product-card button:hover {
+    background: #0056b3;
+}
+
+.buy-button, .cart-button { 
+    background: #2d89ef; 
+    color: #fff; 
+    padding: 10px 15px; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    margin: 5px; 
+} 
+.footer { 
+    background: #2d89ef; 
+    color: #fff; 
+    text-align: center; 
+    padding: 1rem; 
+} 
+  .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+  }
+  
+  h2 {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 10px;
+  }
+  
+  p {
+      font-size: 1.1rem;
+      color: #555;
+      line-height: 1.6;
+  }
+
+  /* About Us Section */
+  .about {
+      background: #f8f9fa;
+      padding: 50px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Contact Us Section */
+  .contact {
+      background: #fff;
+      padding: 50px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin-top: 30px;
+  }
+  
+  .contact form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+  
+  .contact input, .contact textarea {
+      width: 100%;
+      max-width: 500px;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1rem;
+  }
+
+  .contact textarea {
+      resize: none;
+  }
+
+  .contact button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+  }
+
+  .contact button:hover {
+      background: #0056b3;
+  }
+</style> 
+</head> 
+<body> 
+  <header class="header"> 
+      <div class="title-container">
+        <img src="images/logo.png" alt="SIT Logo" class="title-logo">
+        <h1 class="main-title">SIT E-Stationery Store</h1>
+      </div>
+    
+      <nav class="navbar"> 
+        <a href="#home">Home</a> 
+        <a href="#products">Products</a> 
+        <a href="#about">About</a> 
+        <a href="#contact">Contact</a> 
+        <a href="cart.html">🛒 View Cart</a> 
+      </nav> 
+
+  </header> 
+  <section id="home" class="hero"> 
+    <div class="container"> 
+      <h2>Your One-Stop Shop for All Stationery Needs</h2> 
+      <p>Explore a variety of premium stationery items for your creative and professional needs.</p> 
+      <a href="#products" class="cta-button">Shop Now</a> 
+    </div> 
+  </section> 
+  <div class="search-bar-container">
+    <input type="text" id="searchInput" placeholder="Search for products...">
+    <button onclick="searchProducts()">Search</button>
+</div>
+  <section id="products" class="products"> 
+    <div class="container"> 
+      <h2>Our Products</h2> 
+      <div class="product-container" id="productGrid">
+        <div class="product-card"> 
+          <img src="images/mp1.jpg" alt="Diary"> 
+          <h3>Diary</h3> 
+          <p>High-quality diary for every occasion.</p> 
+          <button class="buy-button"data-name="Diary">Buy Now</button> 
+          <button class="cart-button"data-name="Diary">Add to Cart</button> 
+        </div> 
+        <div class="product-card"> 
+          <img src="/images/mp2.jpg" alt="Pen Set"> 
+          <h3>Pen Set</h3> 
+          <p>Stylish pens for professionals and students.</p> 
+          <button class="buy-button"data-name="Pen Set">Buy Now</button> 
+          <button class="cart-button"data-name="Pen Set">Add to Cart</button> 
+        </div> 
+        <div class="product-card"> 
+          <img src="/images/mp3.jpg" alt="Chalk"> 
+          <h3>Chalk</h3> 
+          <p>Smooth, vibrant, and dust-free chalks.</p> 
+          <button class="buy-button"data-name="Chalk">Buy Now</button> 
+          <button class="cart-button"data-name="Chalk">Add to Cart</button> 
+        </div>
+        <div class="product-card"> 
+          <img src="/images/mp4.jpg" alt="Files"> 
+          <h3>Files</h3> 
+          <p>High-quality files with attractive colors.</p> 
+          <button class="buy-button"data-name="Files">Buy Now</button> 
+          <button class="cart-button"data-name="Files">Add to Cart</button>
+        </div> 
+        <div class="product-card"> 
+          <img src="/images/mp5.png" alt="Duster"> 
+          <h3>Duster</h3> 
+          <p>Effortless cleaning every time.</p> 
+          <button class="buy-button"data-name="Duster">Buy Now</button> 
+          <button class="cart-button"data-name="Duster">Add to Cart</button>
+        </div> 
+        <div class="product-card"> 
+          <img src="/images/mp6.jpg" alt="Blank Pages"> 
+          <h3>Blank Pages</h3> 
+          <p>Premium quality pages for every occasion.</p> 
+          <button class="buy-button"data-name="Blank Pages">Buy Now</button> 
+          <button class="cart-button"data-name="Blank Pages">Add to Cart</button>
+        </div> 
+        <div class="product-card"> 
+          <img src="images/mp7.jpeg" alt="Notebooks"> 
+          <h3>Notebooks</h3> 
+          <p>High-quality notebooks for smooth writing.</p> 
+          <button class="buy-button"data-name="Notebooks">Buy Now</button> 
+          <button class="cart-button"data-name="Notebooks">Add to Cart</button>
+        </div> 
+        <div class="product-card"> 
+          <img src="/images/mp8.jpg" alt="Markers"> 
+          <h3>Markers</h3> 
+          <p>Bold marks, smooth lines.</p> 
+          <button class="buy-button"data-name="Markers">Buy Now</button> 
+          <button class="cart-button"data-name="Markers">Add to Cart</button>
+        </div> 
+      </div> 
+    </div> 
+  </section> 
+  
+<section id="about" class="about">
+  <div class="container">
+      <h2>About Us</h2>
+      <p>We are passionate about stationery and bringing you the best products at affordable prices. Our collection is curated with love and attention to detail.</p>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <div class="container">
+      <h2>Contact Us</h2>
+      <form>
+          <input type="text" name="name" placeholder="Your Name" required>
+          <input type="email" name="email" placeholder="Your Email" required>
+          <textarea placeholder="Your Message" rows="5" required></textarea>
+          <button type="submit">Send</button>
+      </form>
+  </div>
+</section>
+  <footer class="footer"> 
+    <div class="container"> 
+      <p>&copy; 2024 E-Stationery Store. All Rights Reserved.</p> 
+    </div> 
+  </footer> 
+  <script src="script.js"></script> 
+</body> 
+</html>
