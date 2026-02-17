@@ -7,6 +7,91 @@
     const API_BASE = window.location.origin;
     let productCache = [];
 
+    function normalizeText(str) {
+        return String(str || "")
+            .toLowerCase()
+            .replace(/[^a-z0-9₹\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function tokenize(str) {
+        const norm = normalizeText(str);
+        return norm ? norm.split(" ").filter(Boolean) : [];
+    }
+
+    function pickRandom(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function productSummary(p) {
+        const desc = (p && p.description) ? ` ${p.description}` : "";
+        return `${p.name}: ₹${p.price}.${desc}`;
+    }
+
+    function scoreProductMatch(queryNorm, queryTokens, product) {
+        const nameNorm = normalizeText(product?.name);
+        if (!queryNorm || !nameNorm) return 0;
+
+        let score = 0;
+        if (nameNorm === queryNorm) score += 120;
+        if (nameNorm.includes(queryNorm) || queryNorm.includes(nameNorm)) score += 70;
+        if (nameNorm.startsWith(queryNorm)) score += 15;
+
+        const nameTokens = tokenize(product?.name);
+        if (queryTokens.length && nameTokens.length) {
+            const nameSet = new Set(nameTokens);
+            let overlap = 0;
+            for (const t of queryTokens) if (nameSet.has(t)) overlap++;
+            score += overlap * 12;
+        }
+
+        return score;
+    }
+
+    function getTopProductMatches(query, limit = 3) {
+        if (!productCache.length) return [];
+        const queryNorm = normalizeText(query);
+        const queryTokens = tokenize(query);
+        if (!queryNorm) return [];
+
+        const scored = productCache
+            .map((p) => ({ p, score: scoreProductMatch(queryNorm, queryTokens, p) }))
+            .filter((x) => x.score > 0)
+            .sort((a, b) => b.score - a.score);
+
+        const top = [];
+        for (const item of scored) {
+            if (!top.find(t => t.p._id === item.p._id && item.p._id)) top.push(item);
+            if (top.length >= limit) break;
+        }
+        return top;
+    }
+
+    function sampleAvailableProducts(limit = 6) {
+        if (!productCache.length) return [];
+        // shuffle copy
+        const copy = productCache.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy.slice(0, Math.min(limit, copy.length));
+    }
+
+    function extractPossibleProductTerm(text) {
+        // Remove common intent words so we can try matching what remains.
+        return normalizeText(text)
+            .replace(/\b(do you have|have you got|is|are|any|available|in stock|sell|selling|provide|carry|stock|price|cost|how much|rupees|₹|of|for|a|an|the|please)\b/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+    }
+
+    function looksLikeOffTopic(textNorm) {
+        // Keep this small and conservative so we don't block valid store questions.
+        return /\b(weather|forecast|joke|riddle|movie|song|lyrics|sports|cricket|football|news|stocks|bitcoin|astrology|horoscope)\b/.test(textNorm);
+    }
+
     // Fetch products for dynamic responses
     async function fetchProducts() {
         try {
@@ -36,38 +121,49 @@
         },
         price: (query) => {
             if (productCache.length === 0) return "I'm loading product info. Ask again shortly!";
-            const q = query.toLowerCase();
-            const match = productCache.find(p =>
-                p.name.toLowerCase().includes(q) || q.includes(p.name.toLowerCase())
-            );
-            if (match) return `${match.name} costs ₹${match.price}. ${match.description || ""}`;
-            const partial = productCache.filter(p =>
-                p.name.toLowerCase().includes(q) || q.includes(p.name.toLowerCase())
-            );
-            if (partial.length) {
-                return partial.map(p => `${p.name}: ₹${p.price}`).join("\n");
+            const q = (query || "").trim();
+            const matches = getTopProductMatches(q, 5);
+            if (matches.length) {
+                const best = matches[0];
+                // If the user query clearly points to one item, answer directly.
+                if (best.score >= 70 || matches.length === 1) {
+                    return `${best.p.name} costs ₹${best.p.price}. ${best.p.description || ""}`.trim();
+                }
+                // Otherwise show a short list of close matches.
+                return `I found a few close matches:\n${matches.map(m => `• ${m.p.name}: ₹${m.p.price}`).join("\n")}\n\nWhich one did you mean?`;
             }
-            return "I couldn't find that product. Try: Diary, Pen set, Chalk, Files, Duster, Blank Pages, Notebooks, Markers.";
+
+            const term = extractPossibleProductTerm(q);
+            const samples = sampleAvailableProducts(6);
+            const sampleText = samples.length ? `Here are a few items we currently have:\n${samples.map(p => `• ${p.name} - ₹${p.price}`).join("\n")}` : "";
+            return `I couldn't find a product matching \"${term || q}\" in our catalog.\n${sampleText}\n\nYou can also ask: \"What products do you have?\"`.trim();
         },
         cart: "To add items to cart, click **Add to Cart** on any product. View your cart using the **🛒 View Cart** link in the header, or go to cart.html.",
         checkout: "After adding items to cart, click **View Cart**, review your items, then proceed to checkout. You can also use **Buy Now** for instant checkout on a single item.",
         about: "We're passionate about stationery! Our collection is curated with care for students and professionals. Quality products at affordable prices.",
         contact: "Reach us via the Contact form on this page, or you can send an email. We're here to help!",
         thanks: ["You're welcome! Happy shopping! 🎒", "Glad I could help! Feel free to ask more.", "Anytime! Enjoy your stationery!"],
-        default: "I'm not sure about that. Try asking: 'What products do you have?', 'How much is a diary?', or 'How do I add to cart?'"
+        default: () => {
+            const samples = sampleAvailableProducts(5);
+            const sampleText = samples.length
+                ? `Some popular items right now:\n${samples.map(p => `• ${p.name} - ₹${p.price}`).join("\n")}`
+                : "";
+            return `I can help with our stationery store: products, prices, cart, and checkout.\n\nTry asking:\n• \"What products do you have?\"\n• \"Do you have notebooks?\"\n• \"How much is a diary?\"\n• \"How do I add to cart?\"\n\n${sampleText}`.trim();
+        }
     };
 
     function getResponse(userText) {
         const text = userText.trim().toLowerCase();
+        const textNorm = normalizeText(text);
         if (!text) return "Type something to get started!";
 
         // Greetings
         if (/\b(hi|hello|hey|hiya)\b/.test(text))
-            return responses.greeting[Math.floor(Math.random() * responses.greeting.length)];
+            return pickRandom(responses.greeting);
 
         // Help
         if (/\b(help|what can you do|options)\b/.test(text))
-            return responses.help[Math.floor(Math.random() * responses.help.length)];
+            return pickRandom(responses.help);
 
         // Products
         if (/\b(products?|items?|what do you (have|sell)|catalog)\b/.test(text))
@@ -77,6 +173,28 @@
         if (/\b(price|cost|how much|rupees?|₹)\b/.test(text)) {
             const withoutPrice = text.replace(/\b(price|cost|how much|rupees?|₹)\b/g, "").trim();
             return responses.price(withoutPrice || text);
+        }
+
+        // Availability / do you have X?
+        if (/\b(available|in stock|do you have|have you got|sell|selling|any)\b/.test(textNorm)) {
+            if (!productCache.length) {
+                return "I'm still loading the product list. Please try again in a moment.";
+            }
+
+            const term = extractPossibleProductTerm(textNorm);
+            const matches = getTopProductMatches(term || textNorm, 4);
+            if (matches.length && (matches[0].score >= 70 || matches.length === 1)) {
+                const p = matches[0].p;
+                return `Yes — we have **${p.name}**.\n${productSummary(p)}\n\nTip: open Products and click **Add to Cart**.`;
+            }
+
+            if (matches.length) {
+                return `I couldn't find an exact match for \"${term || textNorm}\", but here are close options:\n${matches.map(m => `• ${m.p.name} - ₹${m.p.price}`).join("\n")}\n\nWhich one are you looking for?`;
+            }
+
+            const samples = sampleAvailableProducts(6);
+            const sampleText = samples.length ? `Here are a few items we do have:\n${samples.map(p => `• ${p.name} - ₹${p.price}`).join("\n")}` : "";
+            return `I don't see \"${term || textNorm}\" in our catalog right now.\n${sampleText}\n\nYou can ask: \"What products do you have?\"`;
         }
 
         // Cart
@@ -97,18 +215,22 @@
 
         // Thanks
         if (/\b(thanks?|thank you|ty)\b/.test(text))
-            return responses.thanks[Math.floor(Math.random() * responses.thanks.length)];
+            return pickRandom(responses.thanks);
 
         // Product-specific (e.g. "diary", "pens", "notebooks")
         if (productCache.length) {
-            const productMatch = productCache.find(p =>
-                text.includes(p.name.toLowerCase()) || p.name.toLowerCase().includes(text)
-            );
-            if (productMatch)
-                return `${productMatch.name}: ₹${productMatch.price}. ${productMatch.description || ""}`;
+            const matches = getTopProductMatches(textNorm, 3);
+            if (matches.length && (matches[0].score >= 70 || matches.length === 1)) {
+                return productSummary(matches[0].p);
+            }
         }
 
-        return responses.default;
+        if (looksLikeOffTopic(textNorm)) {
+            return "I’m mainly a store assistant for SIT E-Stationery. I can help with products, prices, cart, and checkout.\n\nTry: \"What products do you have?\" or \"Help\".";
+        }
+
+        // Context-aware default
+        return responses.default();
     }
 
     function escapeHtml(str) {
